@@ -1,7 +1,7 @@
 
-**Introduction:**
+# Project Introduction 
 
-For the Module 4 Final Project, we will be examining a dataset from Zillow, of over 14,000 ZIP codes and their respective median home value. Our aim here is to narrow down to the 5 best ZIP codes for our stakeholders, a real estate investment company, to make an investment in. We will define our best investment in this case as low-risk with good return on investment (ROI) for 5 years. The way we have structured this project is by first dividing the data up into 3 equal portions by percentile of the dataset's median price distribution. We will then get the top 5-Year, 10-Year, and 15-year ROIs for each 1/3, and pick a least visually volatile trend from each set, making an ARIMA model for each.
+For the Module 4 Final Project, we will be examining a dataset from Zillow, of over 14,000 ZIP codes (Zone Improvement Plan) and their respective median home value. Our aim here is to narrow down to the 5 best ZIP codes for our stakeholders, a real estate investment company, to make a sound investment in. We will define our best investment in this case as low-risk with good return on investment (ROI) for 5 years, 10 years, or 15 years. The way we have structured this project is by first dividing the data up into 3 equal portions by percentile of the dataset's median price distribution. We will then get the top 5-Year, 10-Year, and 15-year ROIs for each 1/3 subgroup, and pick a least visually volatile trend from each set. Lastly we will create and tune an ARIMA model for each ZIP code left and forecast their future value.
 
 # Obtaining Our Data
 
@@ -28,39 +28,31 @@ First, let's check the 5-point statistics for our set, and get an idea of the di
 
 We can see that the mean value for April 2018 (most recent) for the entire set is ~ (about) 288,000, while the median is ~198,000. The 75th percentile is only ~321,000 and the max value of the set goes all the way to ~17,000,000. 
 
-We want to give our stakeholders, the real estate investment firm, some options for investing. Narrowing our initial selection of zipcodes based on 3 levels most recent values such as might also help leverage what our stakeholders are considering high risk at the moment. Let's try splitting up our data based on the distribution of our dataset so that we have a roughly even amount of houses in each category : < 151,826 (33%), between 151,826 - 263,600 (33% - 66%), and > 263,600 (66%). 
+I want to give our stakeholders, the real estate investment firm, some options for investing. I will narrowing our initial selection of ZIP codes based on 3 levels of the most recent values. I help leverage what our stakeholders are considering high risk at the moment. I will split the rows of data based on the price distribution so that there is a roughly even amount of houses in each category : Price < 151,826 (33rd Percentile), between 151,826 - 263,600 (33% - 66%), and > 263,600 (66%). 
 
-## Top Zipcodes < 33rd Percentile
-Top 2 ROIs for zipcodes where the median home value is under the 33rd percentile:
-
-## Top Zipcodes in 33-66th Percentile
-Top 2 ROIs for zipcodes where the median home value is between the 33rd and 66th percentiles:
-
-## Top Zipcodes > 66th Percentile
-Top 5 ROIs for zipcodes where the median home value is above the 66th percentile:
+<img src='~/../ts_images/percentile distribution stats of price.png'>
 
 # EDA
-## Under $151,000 USD
 
-Let's define the helper function that melt's our data frame from wide format to date-time, long format for convenient graphing and also modeling later on.
+Using a helper function that melts our data frame from wide format to long format with date-time for convenient graphing and also modeling later on.
 
-Now, let's define another function for plotting the time series of any dataframe we feed into it.
+I also define another function for plotting the time series of any dataframe I feed into it.
 
-### ROI Comparison
+Here is an example of the ROI comparision for home under $151,000 USD:
 
 <img src='~/../ts_images/output_39_0.png'>
 
-### Top 5-Year ROIs
-Let's now melt down and plot our top 5 contenders under $151,000 for 5-year ROIs.
+For each ROI subgroup I am melting down the data and plotting the top ROIs in time-series. Here is an example of the top 5 contenders under $151,000 for 5-year ROIs:
 
 <img src='~/../ts_images/output_42_0.png'>
 
 
-All 5 of these zipcodes suffered heavily in the 2007/'08 financial crisis. However, since hitting bottom, these zipcodes outperformed the rest in the last 5 years. We could say any of the 5Y zip code is a risky choice being that the median home price there dropped so heavily in the crisis (high volatility). 
+All 5 of these zipcodes suffered heavily in the 2007/'08 financial crisis. However, since hitting bottom, these zipcodes outperformed the rest in the last 5 years. I could say any of the 5-year ZIP codes are a risky choice, being that the median home price there dropped so heavily in the crisis (high volatility). 
 
 Top Pick out of the top-5: None, too volatile.
 
-Seeing this, we know we can reasonably give a longer time frame more importance. Let's check the 10-year investment contenders.
+Seeing this, I know I can reasonably give a longer time frame more importance. Let's check the 10-year investment contenders.
+
 ### Top 10-Year ROIs
 
 <img src='~/../ts_images/output_45_0.png'>
@@ -193,7 +185,7 @@ We obviously knew there was a significant trend just by looking at our earlier p
 
 # BASELINE SARIMA MODEL: TOP PICK
 
-Now that we've picked our top zip code, let's use it to create our baseline model. We will set a range of values for our best parameter search, for p, d, q, and P, D, Q, s.
+Now that I've picked our top ZIP code, I will use it to create our baseline model. I'll set a range of values for the best parameter search, for p, d, q, and P, D, Q, s.
 
 'p' is the number of Auto-Regressive terms (the AR part of the model). It is basically the lag, incorporating the trends past values to provide predictions.
 
@@ -204,110 +196,28 @@ Now that we've picked our top zip code, let's use it to create our baseline mode
 The capital variables are the same idea for seasonality.
 ___
 
-As we noticed very slight seasonality, let's experiment running SARIMA (keeping the seasonality portion).
+As I noticed very slight seasonality, so I experiment running SARIMA (keeping the seasonality portion), using a nested for loop to iterate through all combinations of parameter values into the SARIMA model and using the combination which returned the minimum AIC value. I then plugged these best parameters into a new model and printed the output summary table for each model.
 
-We will set our p, d, q parameter range between 0 and 2 for starters.
-
-Now let's use a nested for loop to iterate through all combinations of parameter values into the SARIMA model.
-
-Let's now find which combo of parameters gave us the minimum AIC value.
-
-Let's now plug these best parameters into a new model and print the output summary table.
-
-<img src='~/../ts_images/output_119_0.png'>
-
-Top right: Our data is normally distributed for the most part, which is good, however the N(0,1) does not follow as well as we'd like.
-
-Bottom left: ordered distribution of residuals (blue dots) show that we are not really following the linear trend of samples taken from the normal distribution so well.
-
-Bottom right: Our auto-correlation plot shows that the time series residuals have some correlation with lagged versions of itself. 
-____
-As we are not able to confirm the assumptions of the ARIMA model, we will need some further tweaking here. Let's calculate the RMSE to get a baseline error as a benchmark.
-
-    The Root Mean Squared Error of our forecasts is 958.42149
-
-
-So our RMSE is about 958. This means that our predictions are off by about 958 dollars out of 160k - not too bad. 
-
-## Modifying SARIMA Model
-Let's try improving our previous RMSE by widening the parameters in our loop to a range between 0 and 2.
-
-NOTE: This next cell may take a long time to run (24 min for us!).
-
-Let's now find which combo of parameters gave us the minimum AIC value.
-
-Our AIC is a bit lower now.
-Let's plug these new parameters into a new model and run it.
-
-All of our components are now within the p-value significance threshold of 0.05- a good sign.
-
-<img src='~/../ts_images/output_133_0.png'>
-
-Slight improvements in histogram/density curve, and correlogram. Q-Q plot residuals still a bit off though.
-Let's get the RMSE for this new model.
-
-
-    The Root Mean Squared Error of our forecasts is 951.36786
-
-
-Our RMSE did improve (lower) a tad down to 951, from 958.
-
-## Mod #2 ARIMA Model
-Let's see if we can improve on our RMSE by removing the seasonality portion of our model because of how small the range was. (This may be technically a sacrifice to speed up our model computation.)
-
-
-<img src='~/../ts_images/output_145_0.png'>
-
-Our residuals remain correlated and the assumptions of the ARIMA model are violated so we can't use this model.
-
-
-    The Root Mean Squared Error of our forecasts is 876.07315
-
-
-Interesting, our error actually went even lower without the seasonality! However due to the worsened assumption violations of this model, we need to tweak the parameters.
-
-Let's try taking the log of our top zip code and fitting the ARIMA model again 
-## Log Data
+The best performing model utilized a logarithm transformation of the data and gave us considerably better results as far as assumptions:
 
 <img src='~/../ts_images/output_158_0.png'>
 
-Using the log of our time series gave us considerably better results as far as assumptions. The end residuals on the bottom right however are slightly correlated lagged versions of itself. This may be due to the random spikes of noise that we can see in the of the top right graph.
+Using the log of our time series gave  The end residuals on the bottom right however are slightly correlated lagged versions of itself. This may be due to the random spikes of noise that we can see in the of the top right graph.
 
-. Let's plot the predictions and get the RMSE.
+Now I plot the predictions and get the RMSE.
 
 <img src='~/../ts_images/output_161_0.png'>
 
 We can see that our predictions follow our trend quite closely.
 
+    The Root Mean Squared Error of our forecasts is 921.97635 
 
-    The Root Mean Squared Error of our forecasts is 921.97635
-
-
-Our RMSE improved again! Down to 921.9. 
-
-Let's now plot our median value forecast for 15201!
+Now I plot our median value forecast for 15201!
 
 <img src='~/../ts_images/output_166_0.png'>
 
     Model 5-Year Forecasted ROI rate: 82.20%
 
-For our last attempt, let's bring back seasonality with our log transformed data.
-
-### MOD #4, Seasonal Log Data
-
-**NOTE: This will take at least 20 minutes to run!**
-
-<img src='~/../ts_images/output_174_0.png'>
-
-Our residuals correlation is a bit worse now.
-
-
-    The Root Mean Squared Error of our forecasts is 960.28412
-
-
-Worse RMSE. 
-
-Let's go with our non-seasonal log-model!
 
 ## Modeling our narrowed-down top zip codes list to last 4/5 top ZIPs:
 
